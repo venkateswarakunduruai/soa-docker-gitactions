@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class MobileAppServiceImpl implements MobileAppService {
+public class MobileServiceImpl implements MobileAppService {
 
     @Autowired
     private MobileAppRepository repository;
