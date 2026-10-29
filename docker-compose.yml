@@ -24,7 +24,7 @@ services:
   # ── Spring Boot Backend (CrudService) ──────────────────────
   backend:
     build:
-      context: ./CrudService
+      context: ./backend/CrudService
       dockerfile: Dockerfile
     container_name: mobileapp_backend
     restart: always

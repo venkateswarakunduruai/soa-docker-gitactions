@@ -27,8 +27,8 @@ jobs:
       - name: Build and Push Backend Image
         uses: docker/build-push-action@v5
         with:
-          context: ./CrudService
-          file: ./CrudService/Dockerfile
+          context: ./backend/CrudService
+          file: ./backend/CrudService/Dockerfile
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/mobileapp-backend:latest
