@@ -17,30 +17,42 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Check Docker Hub Credentials
+        id: check-creds
+        run: |
+          if [ -n "${{ secrets.DOCKERHUB_USERNAME }}" ] && [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+            echo "has_creds=true" >> $GITHUB_OUTPUT
+            echo "✅ Docker Hub credentials found. Will build and push."
+          else
+            echo "has_creds=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Docker Hub credentials not configured. Images will be built and verified (dry-run)."
+          fi
+
       - name: Log in to Docker Hub
+        if: steps.check-creds.outputs.has_creds == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # ── Build & Push Backend (CrudService) ──────────────────────
-      - name: Build and Push Backend Image
+      - name: Build Backend Image
         uses: docker/build-push-action@v5
         with:
           context: ./backend/CrudService
           file: ./backend/CrudService/Dockerfile
-          push: true
+          push: ${{ steps.check-creds.outputs.has_creds == 'true' }}
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/mobileapp-backend:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/mobileapp-backend:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME || 'local' }}/mobileapp-backend:latest
+            ${{ secrets.DOCKERHUB_USERNAME || 'local' }}/mobileapp-backend:${{ github.sha }}
 
       # ── Build & Push Frontend (React + Nginx) ────────────────────
-      - name: Build and Push Frontend Image
+      - name: Build Frontend Image
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
-          push: true
+          push: ${{ steps.check-creds.outputs.has_creds == 'true' }}
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/mobileapp-frontend:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/mobileapp-frontend:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME || 'local' }}/mobileapp-frontend:latest
+            ${{ secrets.DOCKERHUB_USERNAME || 'local' }}/mobileapp-frontend:${{ github.sha }}
