@@ -30,6 +30,16 @@ public class MobileAppController {
         return new ResponseEntity<>(service.displayAll(), HttpStatus.OK);
     }
 
+    @GetMapping("/Get/{id}")
+    public ResponseEntity<MobileApp> getById(@PathVariable Long id) {
+        return new ResponseEntity<>(service.getById(id), HttpStatus.OK);
+    }
+
+    @PutMapping("/Update/{id}")
+    public ResponseEntity<MobileApp> update(@PathVariable Long id, @RequestBody MobileApp app) {
+        return new ResponseEntity<>(service.update(id, app), HttpStatus.OK);
+    }
+
     @DeleteMapping("/Delete/{id}")
     public ResponseEntity<String> delete(@PathVariable Long id) {
         service.delete(id);

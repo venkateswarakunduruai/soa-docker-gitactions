@@ -1,0 +1,46 @@
+name: Build and Push Docker Images to Docker Hub
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    name: Build & Push Images
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # ── Build & Push Backend (CrudService) ──────────────────────
+      - name: Build and Push Backend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./CrudService
+          file: ./CrudService/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/mobileapp-backend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/mobileapp-backend:${{ github.sha }}
+
+      # ── Build & Push Frontend (React + Nginx) ────────────────────
+      - name: Build and Push Frontend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/mobileapp-frontend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/mobileapp-frontend:${{ github.sha }}
